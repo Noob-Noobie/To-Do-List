@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>To-Do List</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.2/css/bootstrap.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+	<h1 class="text-center mt-5">To-Do List</h1>
+
+	<div class="row mt-5">
+		<div class="col-md-8 offset-md-2">
+			<form id="todo-form" class="mb-3">
+				<div class="input-group">
+					<input type="text" class="form-control" placeholder="Enter task" id="todo-input">
+					<button type="submit" class="btn btn-primary" id="add-btn" disabled>Add New Item</button>
+				</div>
+			</form>
+
+			<ul id="todo-list" class="list-group">
+				
+			</ul>
+
+			<div class="mt-3">
+				<button class="btn btn-danger" id="clear-btn">Clear All</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+$(document).ready(function() {
+
+	// Define the maximum number of tasks
+	const MAX_TASKS = "5";
+
+	// Disable the add button by default
+	$('#add-btn').prop('disabled', true);
+
+	// Enable the add button if the input has text
+	$('#todo-input').on('input', function() {
+		if ($(this).val().length > 0) {
+			$('#add-btn').prop('disabled', false);
+		} else {
+			$('#add-btn').prop('disabled', true);
+		}
+	});
+
+	// Add a new task to the list
+	$('#todo-form').submit(function(event) {
+		event.preventDefault();
+		let todoText = $('#todo-input').val();
+		if (todoText.length > 0) {
+			let todoItem = $('<li>', {
+				class: 'list-group-item d-flex justify-content-between align-items-center',
+				text: todoText
+			});
+			let todoButtons = $('<div>', {
+				class: 'btn-group'
+			});
+			let editButton = $('<button>', {
+				class: 'btn btn-outline-secondary btn-sm',
+				text: 'Edit'
+			}).click(function() {
+				editTodoItem(todoItem);
+			});
+			let saveButton = $('<button>', {
+				class: 'btn btn-outline-secondary btn-sm d-none',
+				text: 'Save'
+			}).click(function() {
+				saveTodoItem(todoItem);
+			});
+			let deleteButton = $('<button>', {
+				class: 'btn btn-outline-danger btn-sm',
+				text: 'Delete'
+			}).click(function() {
+				deleteTodoItem(todoItem);
+			});
+			let doneButton = $('<button>', {
+				class: 'btn btn-outline-success btn-sm',
+				text: 'Done'
+			}).click(function() {
+				toggleTodoItem(todoItem);
+			});
+			todoButtons.append(editButton);
+			todoButtons.append(saveButton);
+			todoButtons.append(deleteButton);
+			todoButtons.append(doneButton);
+			todoItem.append(todoButtons);
+
+            $('#todo-list').append(todoItem);
+
+    // Disable the add button if the maximum number of tasks is reached
+    if ($('#todo-list').children().length >= MAX_TASKS) {
+        $('#add-btn').prop('disabled', true);
+    }
+
+    // Clear the input field
+    $('#todo-input').val('');
+    }
+    });
+
+    // Edit a task
+    function editTodoItem(todoItem) {
+    let todoText = todoItem.text();
+    let todoInput = $('<input>', {
+    class: 'form-control',
+    value: todoText
+    });
+    let saveButton = todoItem.find('.btn-group button:nth-child(2)');
+    let editButton = todoItem.find('.btn-group button:nth-child(1)');
+    saveButton.removeClass('d-none');
+    editButton.addClass('d-none');
+    todoItem.html(todoInput);
+    todoInput.focus();
+    }
+
+    // Save changes to a task
+    function saveTodoItem(todoItem) {
+    let todoInput = todoItem.find('input');
+    let todoText = todoInput.val();
+    if (todoText.length > 0) {
+    todoItem.text(todoText);
+    let saveButton = todoItem.find('.btn-group button:nth-child(2)');
+    let editButton = todoItem.find('.btn-group button:nth-child(1)');
+    saveButton.addClass('d-none');
+    editButton.removeClass('d-none');
+    } else {
+    deleteTodoItem(todoItem);
+    }
+    }
+
+    // Delete a task
+    function deleteTodoItem(todoItem) {
+    todoItem.remove();
+
+    // Enable the add button if the maximum number of tasks is not reached
+    if ($('#todo-list').children().length < MAX_TASKS) {
+    $('#add-btn').prop('disabled', false);
+    }
+    }
+
+    // Toggle the "Done" state of a task
+    function toggleTodoItem(todoItem) {
+    todoItem.toggleClass('list-group-item-success');
+    let doneButton = todoItem.find('.btn-group button:nth-child(4)');
+    if (todoItem.hasClass('list-group-item-success')) {
+    doneButton.text('Undo');
+    todoItem.css('text-decoration', 'line-through');
+    } else {
+    doneButton.text('Done');
+    todoItem.css('text-decoration', 'none');
+    }
+    }
+
+    // Clear all tasks
+    $('#clear-btn').click(function() {
+    $('#todo-list').empty();
+    $('#add-btn').prop('disabled', false);
+    });
+});
+</script>
+
+</body>
+</html>
+
+<!-- This code creates a form where the user can enter a task, with an "Add New Item" button that is disabled by default until the input field has text. Once the button is clicked, a new task is added to the list, with buttons to edit, save, delete, and mark it as done. The maximum number of tasks is defined as a constant MAX_TASKS, and the "Add New Item" button is disabled once this limit is reached. The "Clear All" button can be used to remove all tasks from the list. -->
